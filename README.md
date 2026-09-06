@@ -1,41 +1,36 @@
-# PUZZLÉ 1.0
+# Puzzlé 2.0 Preview
 
-A Netlify-ready, mobile-first daily crossword prototype.
+Puzzlé is a mobile-first daily brain-games platform. Version 2.0 expands the original crossword prototype into a seven-game daily slate.
 
-## Deploy
-1. Unzip the package.
-2. Drag the folder into Netlify Deploys, or connect the folder to a Git repository.
-3. Netlify will serve `index.html` automatically.
+## Games in this preview
 
-## Included in 1.0
-- Daily 5×5 crossword
-- Practice mode
-- Touch + physical keyboard support
-- Across/Down clue navigation
-- Timer
-- Check and Reveal
-- Completion modal and share text
-- Local device stats: plays, solve rate, best time, streak
-- Archive/About shells
-- Netlify security headers
+- **Mini** — compact crossword with variable grid sizing and black-square layouts
+- **Groups** — find four hidden groups of four
+- **Five** — five-letter word guessing
+- **Crown** — row/column placement logic
+- **Trail** — numbered path puzzle
+- **Digits** — compact 6×6 Sudoku-style puzzle
+- **Shift** — one-letter word ladder
 
-## Deliberately deferred
-- Real accounts/auth
-- Shared friend/family groups
-- Cloud leaderboard
-- Real daily puzzle feed
-- Admin/editor for AI-generated puzzles
-- Multi-game platform backend
-- Push notifications
-- Light theme
+## Shared 2.0 platform behavior
 
-## Recommended 1.1 architecture
-Use Supabase for:
-- users
-- puzzles
-- puzzle_entries
-- groups
-- group_members
-- leaderboard_results
+- Today dashboard with all seven games
+- Per-game completion state
+- Daily completion progress
+- Shared daily points total
+- Daily streak when all seven are completed
+- Shareable result text
+- Local-device persistence with `localStorage`
+- Mobile-first responsive UI
 
-Keep the front-end static on Netlify and add Supabase for auth/data.
+## Branding
+
+Use **Puzzlé** in title case. The name remains a working brand.
+
+## Architecture status
+
+2.0 is intentionally client-only so it can be tested quickly in Netlify Deploy Previews. A backend is not yet connected. The next platform layer should add accounts, daily puzzle data, friend/family groups, cloud leaderboards, and an admin/editor workflow for puzzle publishing.
+
+## Netlify
+
+The repository root remains directly deployable. `index.html` is the application and the existing `netlify.toml` provides the deploy configuration.
