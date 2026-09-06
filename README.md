@@ -1,36 +1,31 @@
-# Puzzlé 2.0 Preview
+# Puzzlé 2.1 Preview
 
-Puzzlé is a mobile-first daily brain-games platform. Version 2.0 expands the original crossword prototype into a seven-game daily slate.
+Puzzlé is a mobile-first daily brain-games platform with seven games in the daily slate.
 
-## Games in this preview
+## 2.1 changes
 
-- **Mini** — compact crossword with variable grid sizing and black-square layouts
-- **Groups** — find four hidden groups of four
-- **Five** — five-letter word guessing
-- **Crown** — row/column placement logic
-- **Trail** — numbered path puzzle
-- **Digits** — compact 6×6 Sudoku-style puzzle
-- **Shift** — one-letter word ladder
+- **Scoring normalized:** every game is worth up to 100 points; daily maximum is 700.
+- **Compact long totals:** the UI architecture supports K-format totals for weekly/monthly views while retaining exact values.
+- **Trail repaired:** the board is built from a known valid 17-cell solution path. Checkpoints 1, 7, and 17 occur at the correct path positions and the route contains exactly 17 cells.
+- **Crown upgraded:** 6×6 deduction board with unavailable cells, one crown per row/column, no touching crowns, and an in-app solver assertion that verifies the published board has exactly one solution.
+- **Crown scoring:** repeated checks reduce the score slightly; the puzzle is designed as a more substantial logic challenge than the 2.0 demo.
+- **Groups/Five scoring:** mistakes or extra guesses reduce score so speed is not the only performance dimension.
+- **Branding:** use **Puzzlé** in title case.
 
-## Shared 2.0 platform behavior
+## Daily slate
 
-- Today dashboard with all seven games
-- Per-game completion state
-- Daily completion progress
-- Shared daily points total
-- Daily streak when all seven are completed
-- Shareable result text
-- Local-device persistence with `localStorage`
-- Mobile-first responsive UI
-
-## Branding
-
-Use **Puzzlé** in title case. The name remains a working brand.
+1. Mini — crossword
+2. Groups — category grouping
+3. Five — five-letter word guessing
+4. Crown — placement logic
+5. Trail — numbered path
+6. Digits — 6×6 Sudoku-style logic
+7. Shift — one-letter word ladder
 
 ## Architecture status
 
-2.0 is intentionally client-only so it can be tested quickly in Netlify Deploy Previews. A backend is not yet connected. The next platform layer should add accounts, daily puzzle data, friend/family groups, cloud leaderboards, and an admin/editor workflow for puzzle publishing.
+2.1 remains client-only for rapid Netlify Deploy Preview testing. Accounts, cloud daily puzzle data, private groups, shared leaderboards, weekly/monthly history, and the puzzle publishing/editor backend are the next platform layer after game mechanics are validated.
 
 ## Netlify
 
-The repository root remains directly deployable. `index.html` is the application and the existing `netlify.toml` provides the deploy configuration.
+The repository root is directly deployable. `index.html` is the application and `netlify.toml` provides the deploy configuration.
