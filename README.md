@@ -22,6 +22,10 @@ Puzzlé is a mobile-first daily brain-games platform with seven games in the dai
 6. Digits — 6×6 Sudoku-style logic
 7. Shift — one-letter word ladder
 
+## Test focus
+
+Test Trail end-to-end, Crown difficulty and completion, the 100-point game scale, 700-point daily total, all seven completion states, refresh persistence, and mobile layout before merging.
+
 ## Architecture status
 
 2.1 remains client-only for rapid Netlify Deploy Preview testing. Accounts, cloud daily puzzle data, private groups, shared leaderboards, weekly/monthly history, and the puzzle publishing/editor backend are the next platform layer after game mechanics are validated.
