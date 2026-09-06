@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0b0f" />
+  <title>PUZZLÉ — Daily Crossword</title>
+  <style>
+    :root{
+      --bg:#0b0b0f;
+      --panel:#121218;
+      --panel-2:#191920;
+      --text:#f6f4ef;
+      --muted:#a9a7b0;
+      --line:#2a2a33;
+      --accent:#f3d85a;
+      --accent-2:#8dd4ff;
+      --good:#8fe3a1;
+      --bad:#ff8d8d;
+      --shadow:0 16px 50px rgba(0,0,0,.35);
+      --radius:22px;
+      --grid: min(88vw, 430px);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{padding-bottom:env(safe-area-inset-bottom)}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh}
+    .topbar{
+      position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(11,11,15,.88);backdrop-filter:blur(18px)
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.04em}
+    .brandmark{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--accent);color:#111;font-weight:1000}
+    .brand small{display:block;color:var(--muted);font-weight:700;letter-spacing:.08em;font-size:10px;margin-top:1px}
+    .top-actions{display:flex;gap:8px}
+    .icon-btn,.pill,.nav-btn,.action-btn,.kbd-btn{
+      border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px
+    }
+    .icon-btn{width:40px;height:40px;display:grid;place-items:center}
+    .pill{padding:9px 12px;font-size:13px;font-weight:800}
+    .shell{max-width:1120px;margin:0 auto;padding:18px}
+    .home{display:grid;gap:18px}
+    .hero{
+      background:
+        radial-gradient(circle at 80% 15%, rgba(243,216,90,.16), transparent 30%),
+        linear-gradient(145deg,#15151d,#0f0f14);
+      border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:var(--shadow)
+    }
+    .eyebrow{color:var(--accent);font-weight:900;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+    h1,h2,h3,p{margin:0}
+    .hero h1{font-size:clamp(34px,8vw,58px);line-height:.94;margin-top:10px;letter-spacing:-.05em}
+    .hero p{margin-top:14px;color:var(--muted);font-size:16px;max-width:650px}
+    .hero-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+    .primary{
+      background:var(--accent);color:#121212;border:none;border-radius:16px;padding:14px 18px;font-weight:950
+    }
+    .secondary{
+      background:transparent;color:var(--text);border:1px solid var(--line);border-radius:16px;padding:14px 18px;font-weight:850
+    }
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+    .stat{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:16px;padding:14px}
+    .stat strong{display:block;font-size:24px}
+    .stat span{color:var(--muted);font-size:12px}
+    .cards{display:grid;grid-template-columns:1fr;gap:14px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px}
+    .card h3{font-size:18px;margin-bottom:8px}
+    .card p{color:var(--muted);font-size:14px}
+    .game{display:none}
+    .game.active,.home.active,.archive.active,.about.active{display:block}
+    .home:not(.active),.archive,.about{display:none}
+    .game-layout{display:grid;gap:18px;align-items:start}
+    .game-header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .game-title h2{font-size:26px;letter-spacing:-.03em}
+    .game-title p{color:var(--muted);margin-top:4px;font-size:13px}
+    .timer{font-variant-numeric:tabular-nums;font-size:24px;font-weight:900}
+    .board-wrap{display:flex;justify-content:center}
+    .board{
+      width:var(--grid);height:var(--grid);display:grid;grid-template-columns:repeat(5,1fr);
+      grid-template-rows:repeat(5,1fr);border:3px solid #eee;background:#eee;touch-action:manipulation;
+    }
+    .cell{
+      position:relative;border:1px solid #222;background:#fff;color:#111;display:grid;place-items:center;
+      font-size:clamp(23px,7vw,38px);font-weight:800;text-transform:uppercase;user-select:none
+    }
+    .cell.block{background:#111;border-color:#111}
+    .cell .num{position:absolute;top:2px;left:4px;font-size:clamp(8px,2.2vw,12px);font-weight:700}
+    .cell.selected{background:var(--accent)}
+    .cell.word{background:#dceeff}
+    .cell.bad{color:#c00}
+    .cluebar{
+      width:var(--grid);margin:12px auto 0;background:var(--panel);border:1px solid var(--line);
+      border-radius:16px;padding:12px 14px;min-height:54px;display:flex;align-items:center;gap:8px
+    }
+    .cluebar strong{color:var(--accent);white-space:nowrap}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+    .action-btn{padding:10px 12px;font-weight:850;font-size:13px}
+    .action-btn.warn{color:#ffd0d0}
+    .keyboard{max-width:560px;margin:0 auto;display:grid;gap:7px}
+    .kbd-row{display:flex;gap:6px;justify-content:center}
+    .kbd-btn{
+      border-radius:9px;min-width:30px;height:46px;padding:0 9px;background:#24242d;font-weight:900;text-transform:uppercase
+    }
+    .kbd-btn.wide{min-width:58px;font-size:12px}
+    .clues-panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px}
+    .clue-tabs{display:flex;gap:8px;margin-bottom:10px}
+    .nav-btn{padding:8px 12px;font-weight:850}
+    .nav-btn.active{background:var(--accent);color:#111;border-color:var(--accent)}
+    .clue-list{display:grid;gap:8px}
+    .clue-item{border-radius:12px;padding:10px 11px;border:1px solid transparent;display:flex;gap:9px;color:var(--muted)}
+    .clue-item.active{background:#20202a;border-color:#383844;color:var(--text)}
+    .clue-item .n{color:var(--accent);font-weight:900;min-width:22px}
+    .bottomnav{
+      position:sticky;bottom:0;z-index:15;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+      background:rgba(11,11,15,.92);backdrop-filter:blur(18px)
+    }
+    .bottomnav button{border:none;background:transparent;color:var(--muted);padding:8px 4px;font-weight:800}
+    .bottomnav button.active{color:var(--accent)}
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:18px;z-index:50
+    }
+    .modal.show{display:flex}
+    .modal-card{width:min(92vw,460px);background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:24px;box-shadow:var(--shadow)}
+    .modal-card h2{font-size:30px}
+    .modal-card p{color:var(--muted);margin-top:8px}
+    .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+    .result-grid .stat{text-align:center}
+    .sharebox{white-space:pre-wrap;background:#0d0d12;border:1px solid var(--line);padding:14px;border-radius:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+    .archive-list{display:grid;gap:10px;margin-top:14px}
+    .archive-item{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+    .muted{color:var(--muted)}
+    .section-title{font-size:28px;margin-bottom:8px}
+    .tiny{font-size:12px;color:var(--muted)}
+    @media (min-width:900px){
+      .cards{grid-template-columns:repeat(3,1fr)}
+      .game-layout{grid-template-columns:minmax(0,1.2fr) minmax(310px,.8fr)}
+      .clues-panel{position:sticky;top:88px}
+      .bottomnav{max-width:620px;margin:18px auto 0;border:1px solid var(--line);border-radius:18px;position:static}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brandmark">PZ</div>
+      <div>PUZZLÉ<small>DAILY BRAIN GAMES</small></div>
+    </div>
+    <div class="top-actions">
+      <button class="pill" id="streakPill">🔥 0</button>
+      <button class="icon-btn" id="themeBtn" title="Theme">☾</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="home" class="home active">
+      <div class="hero">
+        <div class="eyebrow">Today’s featured game</div>
+        <h1>Daily<br>Crossword.</h1>
+        <p>Five clues across. Five clues down. One clean little brain workout.</p>
+        <div class="hero-row">
+          <button class="primary" id="playBtn">Play today</button>
+          <button class="secondary" id="practiceBtn">Practice</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong id="statPlayed">0</strong><span>Played</span></div>
+          <div class="stat"><strong id="statWin">0%</strong><span>Solve rate</span></div>
+          <div class="stat"><strong id="statBest">—</strong><span>Best time</span></div>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="card"><h3>🏆 Friends</h3><p>Private groups and shared leaderboards are next on the roadmap.</p></div>
+        <div class="card"><h3>🔥 Streaks</h3><p>Finish the daily puzzle to keep your streak alive.</p></div>
+        <div class="card"><h3>🧠 More games</h3><p>Crossword is just game #1. Word, logic and number games can slot in later.</p></div>
+      </div>
+    </section>
+
+    <section id="game" class="game">
+      <div class="game-header">
+        <div class="game-title">
+          <h2 id="gameName">Daily Crossword</h2>
+          <p id="gameDate"></p>
+        </div>
+        <div class="timer" id="timer">0:00</div>
+      </div>
+
+      <div class="game-layout">
+        <div>
+          <div class="board-wrap"><div id="board" class="board" aria-label="Crossword grid"></div></div>
+          <div class="cluebar"><strong id="clueNum">1A</strong><span id="clueText">Clue</span></div>
+          <div class="toolbar">
+            <button class="action-btn" id="checkBtn">Check</button>
+            <button class="action-btn" id="revealBtn">Reveal</button>
+            <button class="action-btn" id="pauseBtn">Pause</button>
+            <button class="action-btn warn" id="resetBtn">Reset</button>
+          </div>
+          <div id="keyboard" class="keyboard"></div>
+        </div>
+
+        <aside class="clues-panel">
+          <div class="clue-tabs">
+            <button class="nav-btn active" data-tab="across">Across</button>
+            <button class="nav-btn" data-tab="down">Down</button>
+          </div>
+          <div id="clueList" class="clue-list"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="archive" class="archive">
+      <h2 class="section-title">Archive</h2>
+      <p class="muted">Version 1.0 ships with today’s featured puzzle plus practice mode. Historical puzzle packs come next.</p>
+      <div class="archive-list">
+        <div class="archive-item"><div><strong>Today’s Crossword</strong><div class="tiny">5×5 • Daily</div></div><button class="secondary" onclick="startGame(false)">Play</button></div>
+        <div class="archive-item"><div><strong>Practice Crossword</strong><div class="tiny">5×5 • Unlimited replay</div></div><button class="secondary" onclick="startGame(true)">Practice</button></div>
+      </div>
+    </section>
+
+    <section id="about" class="about">
+      <h2 class="section-title">About PUZZLÉ</h2>
+      <div class="card">
+        <p>PUZZLÉ is a daily puzzle playground built around quick, elegant games you can play alone or with friends. Version 1.0 starts with a compact daily crossword and lays the groundwork for groups, shared leaderboards, AI-assisted puzzle publishing, and additional game types.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottomnav">
+    <button data-view="home" class="active">Home</button>
+    <button data-view="game">Play</button>
+    <button data-view="archive">Archive</button>
+    <button data-view="about">About</button>
+  </nav>
+</div>
+
+<div id="completeModal" class="modal">
+  <div class="modal-card">
+    <div class="eyebrow">Puzzle complete</div>
+    <h2>Nice solve.</h2>
+    <p>Your result is saved on this device.</p>
+    <div class="result-grid">
+      <div class="stat"><strong id="resultTime">0:00</strong><span>Time</span></div>
+      <div class="stat"><strong id="resultChecks">0</strong><span>Checks</span></div>
+      <div class="stat"><strong id="resultReveals">0</strong><span>Reveals</span></div>
+    </div>
+    <div id="shareBox" class="sharebox"></div>
+    <div class="hero-row">
+      <button class="primary" id="copyShare">Copy result</button>
+      <button class="secondary" id="closeModal">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAILY_PUZZLE = {
+  id: "2026-09-06-v1",
+  title: "Sunday Mini",
+  date: "September 6, 2026",
+  size: 5,
+  grid: [
+    "SOLAR",
+    "OPERA",
+    "L?VER",
+    "ARENA",
+    "RATIO"
+  ],
+  // One intentional blockless 5x5. ? becomes solution N.
+  solution: [
+    "SOLAR",
+    "OPERA",
+    "LAVER",
+    "ARENA",
+    "RATIO"
+  ],
+  across: [
+    {n:1,row:0,col:0,len:5,answer:"SOLAR",clue:"Powered by sunshine"},
+    {n:6,row:1,col:0,len:5,answer:"OPERA",clue:"Stage work with arias"},
+    {n:7,row:2,col:0,len:5,answer:"LAVER",clue:"Seaweed used for nori"},
+    {n:8,row:3,col:0,len:5,answer:"ARENA",clue:"Venue for a big match"},
+    {n:9,row:4,col:0,len:5,answer:"RATIO",clue:"Relationship between two quantities"}
+  ],
+  down: [
+    {n:1,row:0,col:0,len:5,answer:"SOLAR",clue:"Like energy from the sun"},
+    {n:2,row:0,col:1,len:5,answer:"OPERA",clue:"Musical drama"},
+    {n:3,row:0,col:2,len:5,answer:"LAVER",clue:"Edible red algae"},
+    {n:4,row:0,col:3,len:5,answer:"ARENA",clue:"Sports venue"},
+    {n:5,row:0,col:4,len:5,answer:"RATIO",clue:"Proportion"}
+  ]
+};
+
+const PRACTICE = {
+  ...DAILY_PUZZLE,
+  id:"practice-v1",
+  title:"Practice Mini",
+  date:"Practice mode"
+};
+
+let puzzle = DAILY_PUZZLE;
+let cells = [];
+let selected = {row:0,col:0};
+let direction = "across";
+let elapsed = 0;
+let timerHandle = null;
+let started = false;
+let paused = false;
+let checks = 0;
+let reveals = 0;
+let practiceMode = false;
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function solutionChar(r,c){ return puzzle.solution[r][c]; }
+function idx(r,c){ return r*puzzle.size+c; }
+function currentCell(){ return cells[idx(selected.row, selected.col)]; }
+
+function initBoard(){
+  const board = $("#board");
+  board.innerHTML = "";
+  cells = [];
+  for(let r=0;r<puzzle.size;r++){
+    for(let c=0;c<puzzle.size;c++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.dataset.row=r; cell.dataset.col=c;
+      const n = clueNumberAt(r,c);
+      if(n){ const num=document.createElement("span"); num.className="num"; num.textContent=n; cell.appendChild(num); }
+      const letter=document.createElement("span"); letter.className="letter"; cell.appendChild(letter);
+      cell.addEventListener("click",()=>selectCell(r,c,true));
+      board.appendChild(cell); cells.push(cell);
+    }
+  }
+  renderSelection();
+}
+
+function clueNumberAt(r,c){
+  const all=[...puzzle.across,...puzzle.down];
+  const hit=all.find(x=>x.row===r&&x.col===c);
+  return hit?hit.n:"";
+}
+
+function clueForCell(r,c,dir){
+  const list=dir==="across"?puzzle.across:puzzle.down;
+  return list.find(cl=>{
+    for(let i=0;i<cl.len;i++){
+      const rr=cl.row+(dir==="down"?i:0);
+      const cc=cl.col+(dir==="across"?i:0);
+      if(rr===r&&cc===c) return true;
+    }
+  });
+}
+
+function renderSelection(){
+  cells.forEach(c=>c.classList.remove("selected","word"));
+  const clue = clueForCell(selected.row,selected.col,direction);
+  if(clue){
+    for(let i=0;i<clue.len;i++){
+      const rr=clue.row+(direction==="down"?i:0);
+      const cc=clue.col+(direction==="across"?i:0);
+      cells[idx(rr,cc)].classList.add("word");
+    }
+    currentCell().classList.remove("word");
+    currentCell().classList.add("selected");
+    $("#clueNum").textContent=clue.n+(direction==="across"?"A":"D");
+    $("#clueText").textContent=clue.clue;
+  }
+  renderClues();
+}
+
+function selectCell(r,c,toggle=false){
+  if(paused) return;
+  ensureStarted();
+  if(toggle && selected.row===r && selected.col===c) direction = direction==="across"?"down":"across";
+  selected={row:r,col:c};
+  renderSelection();
+}
+
+function ensureStarted(){
+  if(!started){ started=true; paused=false; startTimer(); }
+}
+
+function enterLetter(ch){
+  if(paused) return;
+  ensureStarted();
+  const cell=currentCell();
+  cell.querySelector(".letter").textContent=ch.toUpperCase();
+  cell.classList.remove("bad");
+  moveNext();
+  testComplete();
+}
+
+function moveNext(){
+  let r=selected.row,c=selected.col;
+  if(direction==="across") c++; else r++;
+  if(r>=puzzle.size || c>=puzzle.size){
+    const list=direction==="across"?puzzle.across:puzzle.down;
+    const clue=clueForCell(selected.row,selected.col,direction);
+    const ix=list.indexOf(clue);
+    const next=list[(ix+1)%list.length];
+    r=next.row;c=next.col;
+  }
+  selected={row:r,col:c}; renderSelection();
+}
+
+function backspace(){
+  const cell=currentCell();
+  if(cell.querySelector(".letter").textContent){
+    cell.querySelector(".letter").textContent="";
+    cell.classList.remove("bad");
+    return;
+  }
+  let r=selected.row,c=selected.col;
+  if(direction==="across") c=Math.max(0,c-1); else r=Math.max(0,r-1);
+  selected={row:r,col:c};
+  currentCell().querySelector(".letter").textContent="";
+  currentCell().classList.remove("bad");
+  renderSelection();
+}
+
+function checkCurrent(){
+  checks++;
+  const clue=clueForCell(selected.row,selected.col,direction);
+  for(let i=0;i<clue.len;i++){
+    const r=clue.row+(direction==="down"?i:0);
+    const c=clue.col+(direction==="across"?i:0);
+    const cell=cells[idx(r,c)];
+    const entered=cell.querySelector(".letter").textContent;
+    if(entered && entered!==solutionChar(r,c)) cell.classList.add("bad");
+    else cell.classList.remove("bad");
+  }
+}
+
+function revealCurrent(){
+  reveals++;
+  const clue=clueForCell(selected.row,selected.col,direction);
+  for(let i=0;i<clue.len;i++){
+    const r=clue.row+(direction==="down"?i:0);
+    const c=clue.col+(direction==="across"?i:0);
+    cells[idx(r,c)].querySelector(".letter").textContent=solutionChar(r,c);
+    cells[idx(r,c)].classList.remove("bad");
+  }
+  testComplete();
+}
+
+function testComplete(){
+  const solved=cells.every((cell,i)=>cell.querySelector(".letter").textContent===solutionChar(Math.floor(i/5),i%5));
+  if(solved) finishGame();
+}
+
+function startTimer(){
+  stopTimer();
+  timerHandle=setInterval(()=>{
+    if(!paused){ elapsed++; $("#timer").textContent=formatTime(elapsed); }
+  },1000);
+}
+function stopTimer(){ if(timerHandle) clearInterval(timerHandle); timerHandle=null; }
+function formatTime(s){ return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+
+function resetGame(){
+  if(!confirm("Reset this puzzle?")) return;
+  cells.forEach(c=>{c.querySelector(".letter").textContent="";c.classList.remove("bad")});
+  elapsed=0; checks=0; reveals=0; started=false; paused=false; stopTimer(); $("#timer").textContent="0:00";
+  selected={row:0,col:0}; direction="across"; renderSelection();
+}
+
+function finishGame(){
+  stopTimer(); paused=true;
+  const stats=loadStats();
+  if(!practiceMode){
+    stats.played += 1;
+    stats.wins += 1;
+    stats.best = stats.best==null ? elapsed : Math.min(stats.best,elapsed);
+    stats.lastCompleted = puzzle.id;
+    stats.streak = (stats.streak||0)+1;
+    saveStats(stats);
+  }
+  updateStatsUI();
+  $("#resultTime").textContent=formatTime(elapsed);
+  $("#resultChecks").textContent=checks;
+  $("#resultReveals").textContent=reveals;
+  $("#shareBox").textContent = `PUZZLÉ — ${puzzle.date}\n🧩 Daily Crossword\n⏱ ${formatTime(elapsed)}   ✓ ${checks}   💡 ${reveals}\n${reveals===0?"✨ Clean solve":"🧠 Solved with a little help"}`;
+  $("#completeModal").classList.add("show");
+}
+
+function loadStats(){ return JSON.parse(localStorage.getItem("puzzleStats")||'{"played":0,"wins":0,"best":null,"streak":0}'); }
+function saveStats(s){ localStorage.setItem("puzzleStats",JSON.stringify(s)); }
+function updateStatsUI(){
+  const s=loadStats();
+  $("#statPlayed").textContent=s.played||0;
+  $("#statWin").textContent=s.played?Math.round((s.wins/s.played)*100)+"%":"0%";
+  $("#statBest").textContent=s.best==null?"—":formatTime(s.best);
+  $("#streakPill").textContent="🔥 "+(s.streak||0);
+}
+
+function renderClues(){
+  $$(".nav-btn[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===direction));
+  const list=direction==="across"?puzzle.across:puzzle.down;
+  const active=clueForCell(selected.row,selected.col,direction);
+  $("#clueList").innerHTML="";
+  list.forEach(cl=>{
+    const item=document.createElement("div"); item.className="clue-item"+(active===cl?" active":"");
+    item.innerHTML=`<span class="n">${cl.n}</span><span>${cl.clue}</span>`;
+    item.addEventListener("click",()=>{selected={row:cl.row,col:cl.col};renderSelection()});
+    $("#clueList").appendChild(item);
+  });
+}
+
+function buildKeyboard(){
+  const rows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
+  const k=$("#keyboard"); k.innerHTML="";
+  rows.forEach((letters,i)=>{
+    const row=document.createElement("div"); row.className="kbd-row";
+    if(i===2){
+      const del=document.createElement("button"); del.className="kbd-btn wide"; del.textContent="⌫"; del.onclick=backspace; row.appendChild(del);
+    }
+    [...letters].forEach(ch=>{
+      const b=document.createElement("button"); b.className="kbd-btn"; b.textContent=ch; b.onclick=()=>enterLetter(ch); row.appendChild(b);
+    });
+    if(i===2){
+      const next=document.createElement("button"); next.className="kbd-btn wide"; next.textContent="Next"; next.onclick=()=>{direction=direction==="across"?"down":"across";renderSelection()}; row.appendChild(next);
+    }
+    k.appendChild(row);
+  });
+}
+
+function showView(view){
+  ["home","game","archive","about"].forEach(id=>$("#"+id).classList.toggle("active",id===view));
+  $$(".bottomnav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+}
+
+function startGame(practice=false){
+  practiceMode=practice;
+  puzzle=practice?PRACTICE:DAILY_PUZZLE;
+  $("#gameName").textContent=practice?"Practice Crossword":"Daily Crossword";
+  $("#gameDate").textContent=puzzle.date;
+  elapsed=0;checks=0;reveals=0;started=false;paused=false;stopTimer();$("#timer").textContent="0:00";
+  selected={row:0,col:0};direction="across";
+  initBoard(); buildKeyboard(); showView("game");
+}
+
+$("#playBtn").onclick=()=>startGame(false);
+$("#practiceBtn").onclick=()=>startGame(true);
+$("#checkBtn").onclick=checkCurrent;
+$("#revealBtn").onclick=revealCurrent;
+$("#resetBtn").onclick=resetGame;
+$("#pauseBtn").onclick=()=>{
+  if(!started) return;
+  paused=!paused;
+  $("#pauseBtn").textContent=paused?"Resume":"Pause";
+};
+$("#closeModal").onclick=()=>$("#completeModal").classList.remove("show");
+$("#copyShare").onclick=async()=>{
+  try{await navigator.clipboard.writeText($("#shareBox").textContent);$("#copyShare").textContent="Copied!";setTimeout(()=>$("#copyShare").textContent="Copy result",1200)}
+  catch(e){alert("Copy failed on this browser.");}
+};
+$$(".bottomnav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+$$(".nav-btn[data-tab]").forEach(b=>b.onclick=()=>{direction=b.dataset.tab;renderSelection()});
+document.addEventListener("keydown",e=>{
+  if(!$("#game").classList.contains("active")) return;
+  if(/^[a-zA-Z]$/.test(e.key)) enterLetter(e.key);
+  if(e.key==="Backspace") backspace();
+  if(e.key==="Tab"){e.preventDefault();direction=direction==="across"?"down":"across";renderSelection()}
+});
+$("#themeBtn").onclick=()=>alert("Dark mode is the default in 1.0. Light mode comes next.");
+updateStatsUI();
+$("#gameDate").textContent=DAILY_PUZZLE.date;
+</script>
+</body>
+</html>
