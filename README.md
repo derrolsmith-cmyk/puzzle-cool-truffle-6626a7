@@ -5,7 +5,7 @@ Puzzlé is a mobile-first daily brain-games platform with seven games in the dai
 ## 2.1 changes
 
 - **Scoring normalized:** every game is worth up to 100 points; daily maximum is 700.
-- **Compact long totals:** the UI architecture supports K-format totals for weekly/monthly views while retaining exact values.
+- **Long-total design:** weekly/monthly views will use compact K-format totals where space is tight while retaining exact values in detail views.
 - **Trail repaired:** the board is built from a known valid 17-cell solution path. Checkpoints 1, 7, and 17 occur at the correct path positions and the route contains exactly 17 cells.
 - **Crown upgraded:** 6×6 deduction board with unavailable cells, one crown per row/column, no touching crowns, and an in-app solver assertion that verifies the published board has exactly one solution.
 - **Crown scoring:** repeated checks reduce the score slightly; the puzzle is designed as a more substantial logic challenge than the 2.0 demo.
