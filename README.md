@@ -1,41 +1,35 @@
-# PUZZLÉ 1.0
+# Puzzlé 2.1 Preview
 
-A Netlify-ready, mobile-first daily crossword prototype.
+Puzzlé is a mobile-first daily brain-games platform with seven games in the daily slate.
 
-## Deploy
-1. Unzip the package.
-2. Drag the folder into Netlify Deploys, or connect the folder to a Git repository.
-3. Netlify will serve `index.html` automatically.
+## 2.1 changes
 
-## Included in 1.0
-- Daily 5×5 crossword
-- Practice mode
-- Touch + physical keyboard support
-- Across/Down clue navigation
-- Timer
-- Check and Reveal
-- Completion modal and share text
-- Local device stats: plays, solve rate, best time, streak
-- Archive/About shells
-- Netlify security headers
+- **Scoring normalized:** every game is worth up to 100 points; daily maximum is 700.
+- **Long-total design:** weekly/monthly views will use compact K-format totals where space is tight while retaining exact values in detail views.
+- **Trail repaired:** the board is built from a known valid 17-cell solution path. Checkpoints 1, 7, and 17 occur at the correct path positions and the route contains exactly 17 cells.
+- **Crown upgraded:** 6×6 deduction board with unavailable cells, one crown per row/column, no touching crowns, and an in-app solver assertion that verifies the published board has exactly one solution.
+- **Crown scoring:** repeated checks reduce the score slightly; the puzzle is designed as a more substantial logic challenge than the 2.0 demo.
+- **Groups/Five scoring:** mistakes or extra guesses reduce score so speed is not the only performance dimension.
+- **Branding:** use **Puzzlé** in title case.
 
-## Deliberately deferred
-- Real accounts/auth
-- Shared friend/family groups
-- Cloud leaderboard
-- Real daily puzzle feed
-- Admin/editor for AI-generated puzzles
-- Multi-game platform backend
-- Push notifications
-- Light theme
+## Daily slate
 
-## Recommended 1.1 architecture
-Use Supabase for:
-- users
-- puzzles
-- puzzle_entries
-- groups
-- group_members
-- leaderboard_results
+1. Mini — crossword
+2. Groups — category grouping
+3. Five — five-letter word guessing
+4. Crown — placement logic
+5. Trail — numbered path
+6. Digits — 6×6 Sudoku-style logic
+7. Shift — one-letter word ladder
 
-Keep the front-end static on Netlify and add Supabase for auth/data.
+## Test focus
+
+Test Trail end-to-end, Crown difficulty and completion, the 100-point game scale, 700-point daily total, all seven completion states, refresh persistence, and mobile layout before merging.
+
+## Architecture status
+
+2.1 remains client-only for rapid Netlify Deploy Preview testing. Accounts, cloud daily puzzle data, private groups, shared leaderboards, weekly/monthly history, and the puzzle publishing/editor backend are the next platform layer after game mechanics are validated.
+
+## Netlify
+
+The repository root is directly deployable. `index.html` is the application and `netlify.toml` provides the deploy configuration.
